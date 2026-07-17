@@ -1,0 +1,20 @@
+{
+  "entity": {
+    "sensor": {
+      "queue_length": {"default": "mdi:playlist-music"},
+      "current_state": {
+        "default": "mdi:music-box-multiple",
+        "state": {
+          "idle": "mdi:music-box-outline",
+          "downloading": "mdi:download-circle",
+          "failed": "mdi:alert-circle-outline"
+        }
+      },
+      "progress": {"default": "mdi:progress-download"}
+    }
+  },
+  "services": {
+    "download": "mdi:download",
+    "download_batch": "mdi:download-multiple"
+  }
+}

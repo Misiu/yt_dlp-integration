@@ -1,0 +1,22 @@
+download:
+  fields:
+    url:
+      required: true
+      example: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+      selector:
+        text:
+          type: url
+          autocomplete: url
+
+download_batch:
+  fields:
+    urls:
+      required: true
+      example:
+        - "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        - "https://youtu.be/9bZkp7q19f0"
+      selector:
+        text:
+          type: url
+          autocomplete: url
+          multiple: true

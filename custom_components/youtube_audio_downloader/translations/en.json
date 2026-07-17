@@ -1,0 +1,83 @@
+{
+  "title": "YouTube Audio Downloader",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Discovery required",
+        "description": "Install and start the YouTube Audio Downloader App. The App securely sends its connection details to Home Assistant, so you never need to retrieve or enter a token. Return to the integrations page when the discovered integration appears."
+      },
+      "hassio_confirm": {
+        "title": "Set up YouTube Audio Downloader",
+        "description": "Home Assistant discovered **{app}**. Submit to add it."
+      },
+      "reauth_confirm": {
+        "title": "Refresh App discovery",
+        "description": "The App rejected its generated token. Restart the YouTube Audio Downloader App and wait for it to rediscover this integration. You never need to retrieve or enter the token yourself."
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the App. Make sure it is running, then try again.",
+      "invalid_auth": "The App rejected its discovery token. Restart or reinstall the App to publish fresh discovery details.",
+      "invalid_response": "The App returned incompatible identity or API information. Update the App and try again."
+    },
+    "abort": {
+      "already_configured": "This App instance is already configured. Its connection details were updated.",
+      "discovery_required": "Configuration is available only through automatic App discovery. Start the App and wait for Home Assistant to discover it.",
+      "invalid_discovery": "The App sent incomplete or invalid discovery details.",
+      "incompatible_api_version": "This App API version is not supported. Update the integration and the App.",
+      "single_instance_allowed": "Only one App instance can be configured. Remove the old integration entry before adding a replacement App installation.",
+      "invalid_auth": "The App rejected its discovery token. Restart or reinstall the App to publish fresh discovery details.",
+      "cannot_connect": "Cannot connect to the discovered App. Make sure it is running and try again.",
+      "invalid_response": "The discovered App returned incompatible identity or API information."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "queue_length": {"name": "Queue length"},
+      "current_state": {
+        "name": "Current state",
+        "state": {
+          "idle": "Idle",
+          "queued": "Queued",
+          "extracting_metadata": "Extracting metadata",
+          "downloading": "Downloading",
+          "processing": "Processing",
+          "embedding_metadata": "Embedding metadata",
+          "completed": "Completed",
+          "failed": "Failed",
+          "cancelled": "Cancelled",
+          "stopping": "Stopping"
+        }
+      },
+      "progress": {"name": "Download progress"}
+    }
+  },
+  "services": {
+    "download": {
+      "name": "Download audio",
+      "description": "Queue one supported YouTube URL for audio download.",
+      "fields": {
+        "url": {"name": "URL", "description": "A supported HTTPS YouTube video URL."}
+      }
+    },
+    "download_batch": {
+      "name": "Download audio batch",
+      "description": "Atomically queue between 1 and 50 supported YouTube URLs.",
+      "fields": {
+        "urls": {"name": "URLs", "description": "A list of supported HTTPS YouTube video URLs."}
+      }
+    }
+  },
+  "exceptions": {
+    "not_configured": {"message": "YouTube Audio Downloader is not configured or loaded. Start the App and complete the discovered integration flow."},
+    "invalid_auth": {"message": "The App rejected its integration token. Restart the App so it can rediscover the integration."},
+    "service_unavailable": {"message": "The App is unavailable. Make sure it is running and try again."},
+    "invalid_request": {"message": "The request is incomplete or contains an invalid value."},
+    "invalid_url": {"message": "The URL is invalid. Use a standard HTTPS YouTube video, Short, or embed URL."},
+    "unsupported_host": {"message": "The URL host is unsupported. Use youtube.com or youtu.be."},
+    "duplicate_job": {"message": "This video is already queued or active, or the batch contains it more than once."},
+    "queue_full": {"message": "The App download queue is full. Wait for a job to finish and try again."},
+    "service_stopping": {"message": "The App is stopping and cannot accept downloads. Start it and try again."},
+    "app_error": {"message": "The App rejected the request ({code}): {message}"}
+  }
+}

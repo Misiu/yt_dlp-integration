@@ -1,0 +1,83 @@
+{
+  "title": "YouTube Audio Downloader",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Wymagane wykrywanie",
+        "description": "Zainstaluj i uruchom aplikację YouTube Audio Downloader. Aplikacja bezpiecznie przekazuje dane połączenia do Home Assistanta, więc nie musisz samodzielnie pobierać ani wpisywać tokenu. Wróć do strony integracji, gdy pojawi się wykryta integracja."
+      },
+      "hassio_confirm": {
+        "title": "Skonfiguruj YouTube Audio Downloader",
+        "description": "Home Assistant wykrył **{app}**. Zatwierdź, aby dodać integrację."
+      },
+      "reauth_confirm": {
+        "title": "Odśwież wykrywanie aplikacji",
+        "description": "Aplikacja odrzuciła wygenerowany token. Uruchom ponownie aplikację YouTube Audio Downloader i poczekaj na ponowne wykrycie integracji. Nie musisz samodzielnie pobierać ani wpisywać tokenu."
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie można połączyć się z aplikacją. Upewnij się, że jest uruchomiona, i spróbuj ponownie.",
+      "invalid_auth": "Aplikacja odrzuciła token wykrywania. Uruchom ponownie lub przeinstaluj aplikację, aby opublikowała nowe dane.",
+      "invalid_response": "Aplikacja zwróciła niezgodne dane tożsamości lub API. Zaktualizuj aplikację i spróbuj ponownie."
+    },
+    "abort": {
+      "already_configured": "Ta instancja aplikacji jest już skonfigurowana. Dane połączenia zostały zaktualizowane.",
+      "discovery_required": "Konfiguracja jest dostępna tylko przez automatyczne wykrywanie aplikacji. Uruchom aplikację i poczekaj, aż Home Assistant ją wykryje.",
+      "invalid_discovery": "Aplikacja przesłała niepełne lub nieprawidłowe dane wykrywania.",
+      "incompatible_api_version": "Ta wersja API aplikacji nie jest obsługiwana. Zaktualizuj integrację i aplikację.",
+      "single_instance_allowed": "Można skonfigurować tylko jedną instancję aplikacji. Usuń stary wpis integracji przed dodaniem nowej instalacji aplikacji.",
+      "invalid_auth": "Aplikacja odrzuciła token wykrywania. Uruchom ponownie lub przeinstaluj aplikację, aby opublikowała nowe dane.",
+      "cannot_connect": "Nie można połączyć się z wykrytą aplikacją. Upewnij się, że działa, i spróbuj ponownie.",
+      "invalid_response": "Wykryta aplikacja zwróciła niezgodne dane tożsamości lub API."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "queue_length": {"name": "Długość kolejki"},
+      "current_state": {
+        "name": "Bieżący stan",
+        "state": {
+          "idle": "Bezczynny",
+          "queued": "W kolejce",
+          "extracting_metadata": "Pobieranie metadanych",
+          "downloading": "Pobieranie",
+          "processing": "Przetwarzanie",
+          "embedding_metadata": "Zapisywanie metadanych",
+          "completed": "Ukończono",
+          "failed": "Niepowodzenie",
+          "cancelled": "Anulowano",
+          "stopping": "Zatrzymywanie"
+        }
+      },
+      "progress": {"name": "Postęp pobierania"}
+    }
+  },
+  "services": {
+    "download": {
+      "name": "Pobierz audio",
+      "description": "Dodaje jeden obsługiwany adres YouTube do kolejki pobierania audio.",
+      "fields": {
+        "url": {"name": "Adres URL", "description": "Obsługiwany adres HTTPS filmu YouTube."}
+      }
+    },
+    "download_batch": {
+      "name": "Pobierz wiele plików audio",
+      "description": "Atomowo dodaje od 1 do 50 obsługiwanych adresów YouTube do kolejki.",
+      "fields": {
+        "urls": {"name": "Adresy URL", "description": "Lista obsługiwanych adresów HTTPS filmów YouTube."}
+      }
+    }
+  },
+  "exceptions": {
+    "not_configured": {"message": "YouTube Audio Downloader nie jest skonfigurowany lub załadowany. Uruchom aplikację i dokończ konfigurację wykrytej integracji."},
+    "invalid_auth": {"message": "Aplikacja odrzuciła token integracji. Uruchom aplikację ponownie, aby ponownie wykryła integrację."},
+    "service_unavailable": {"message": "Aplikacja jest niedostępna. Upewnij się, że działa, i spróbuj ponownie."},
+    "invalid_request": {"message": "Żądanie jest niekompletne lub zawiera nieprawidłową wartość."},
+    "invalid_url": {"message": "Adres URL jest nieprawidłowy. Użyj standardowego adresu HTTPS filmu, Short lub osadzonego filmu YouTube."},
+    "unsupported_host": {"message": "Host adresu URL nie jest obsługiwany. Użyj youtube.com lub youtu.be."},
+    "duplicate_job": {"message": "Ten film jest już w kolejce lub jest pobierany albo występuje w paczce więcej niż raz."},
+    "queue_full": {"message": "Kolejka pobierania jest pełna. Poczekaj na zakończenie zadania i spróbuj ponownie."},
+    "service_stopping": {"message": "Aplikacja jest zatrzymywana i nie może przyjąć pobierania. Uruchom ją i spróbuj ponownie."},
+    "app_error": {"message": "Aplikacja odrzuciła żądanie ({code}): {message}"}
+  }
+}

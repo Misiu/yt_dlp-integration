@@ -1,0 +1,11 @@
+{
+  "domain": "youtube_audio_downloader",
+  "name": "YouTube Audio Downloader",
+  "codeowners": ["@Misiu"],
+  "config_flow": true,
+  "documentation": "https://github.com/Misiu/yt_dlp-integration",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/Misiu/yt_dlp-integration/issues",
+  "version": "0.1.0"
+}
