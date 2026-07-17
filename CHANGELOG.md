@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Automatyczne tworzenie GitHub Release po wypchnięciu zgodnego taga SemVer.
+- Blokada wydania, gdy wersja taga i `manifest.json` nie są zgodne.
+
 ## 0.1.0
 
 - Supervisor discovery z potwierdzeniem i bez ręcznego podawania tokenu.
