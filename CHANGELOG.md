@@ -5,6 +5,8 @@
 - Natywne zdarzenia Home Assistant po ukończeniu pliku i opróżnieniu kolejki.
 - Deduplikacja zakończeń oraz odtwarzanie pominiętych zdarzeń z historii po reconnect SSE.
 - Przykład automatyzacji Companion App z powiadomieniem i synchronizacją filesystem Music Assistant.
+- Automatyczne tworzenie GitHub Release po wypchnięciu zgodnego taga SemVer.
+- Blokada wydania, gdy wersja taga i `manifest.json` nie są zgodne.
 
 ## 0.1.0
 

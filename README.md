@@ -216,6 +216,17 @@ Token uwierzytelniający i źródłowe adresy filmów nie są zapisywane w logac
 
 ## Rozwój i wydania
 
-Repozytorium jest walidowane przez Ruff, mypy, pytest, Hassfest i HACS. Wydania dla HACS powinny być publikowane jako GitHub Releases, nie tylko tagi.
+Repozytorium jest walidowane przez Ruff, mypy, pytest, Hassfest i HACS. GitHub Release jest tworzony automatycznie po wypchnięciu taga:
+
+1. Zmień pole `version` w `custom_components/youtube_audio_downloader/manifest.json` i uzupełnij changelog.
+2. Zacommituj oraz wypchnij zmiany do `main`.
+3. Utwórz tag zgodny z wersją manifestu i wypchnij go:
+
+   ```shell
+   git tag 0.2.0
+   git push origin 0.2.0
+   ```
+
+Workflow ponownie uruchomi pełną walidację. Release powstanie tylko wtedy, gdy tag jest poprawnym SemVerem, jego wersja jest identyczna z manifestem, a Ruff, mypy, pytest, Hassfest i HACS zakończą się powodzeniem. Obsługiwany jest opcjonalny prefiks `v`; tagi z sufiksem, np. `0.2.0-beta.1`, tworzą prerelease.
 
 Licencja: [MIT](LICENSE).
