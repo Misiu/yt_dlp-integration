@@ -19,6 +19,9 @@ SERVICE_DOWNLOAD_BATCH = "download_batch"
 ATTR_URL = "url"
 ATTR_URLS = "urls"
 
+EVENT_DOWNLOAD_COMPLETED = f"{DOMAIN}_download_completed"
+EVENT_QUEUE_COMPLETED = f"{DOMAIN}_queue_completed"
+
 PLATFORMS = [Platform.SENSOR]
 
 STATE_IDLE = "idle"

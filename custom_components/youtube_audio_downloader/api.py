@@ -59,6 +59,15 @@ class StatusData(TypedDict):
     current: JobData | None
 
 
+class HistoryData(TypedDict):
+    """One terminal job history page."""
+
+    items: list[JobData]
+    page: int
+    page_size: int
+    total: int
+
+
 @dataclass(frozen=True, slots=True)
 class ServerSentEvent:
     """A parsed server-sent event."""
@@ -119,6 +128,18 @@ class YoutubeAudioDownloaderApiClient:
         """Return the current App status."""
         payload = await self._async_request("GET", "/api/v1/status", expected=200)
         return parse_status(payload)
+
+    async def async_get_history(
+        self, *, page: int = 1, page_size: int = 100
+    ) -> HistoryData:
+        """Return a terminal job history page for completion reconciliation."""
+        payload = await self._async_request(
+            "GET",
+            "/api/v1/history",
+            expected=200,
+            params={"page": page, "page_size": page_size},
+        )
+        return parse_history(payload)
 
     async def async_download(self, url: str) -> dict[str, Any]:
         """Queue a single download."""
@@ -204,6 +225,7 @@ class YoutubeAudioDownloaderApiClient:
         *,
         expected: int,
         json_body: dict[str, Any] | None = None,
+        params: Mapping[str, int | str] | None = None,
     ) -> Any:
         """Perform one authenticated JSON request."""
         try:
@@ -212,6 +234,7 @@ class YoutubeAudioDownloaderApiClient:
                 self._base_url.with_path(path),
                 headers=self._headers,
                 json=json_body,
+                params=params,
                 timeout=ClientTimeout(total=15),
             ) as response:
                 if response.status != expected:
@@ -281,6 +304,37 @@ def parse_status(payload: Any) -> StatusData:
         progress=float(progress) if progress is not None else None,
         queue_length=queue_length,
         current=cast("JobData | None", dict(current) if current is not None else None),
+    )
+
+
+def parse_history(payload: Any) -> HistoryData:
+    """Validate and normalize a terminal history page."""
+    if not isinstance(payload, Mapping):
+        raise YoutubeAudioDownloaderResponseError(
+            200, "invalid_response", "The App returned invalid history."
+        )
+    raw_items = payload.get("items")
+    page = payload.get("page")
+    page_size = payload.get("page_size")
+    total = payload.get("total")
+    if (
+        not isinstance(raw_items, list)
+        or not isinstance(page, int)
+        or isinstance(page, bool)
+        or not isinstance(page_size, int)
+        or isinstance(page_size, bool)
+        or not isinstance(total, int)
+        or isinstance(total, bool)
+        or any(not isinstance(item, Mapping) for item in raw_items)
+    ):
+        raise YoutubeAudioDownloaderResponseError(
+            200, "invalid_response", "The App returned invalid history."
+        )
+    return HistoryData(
+        items=[cast("JobData", dict(item)) for item in raw_items],
+        page=page,
+        page_size=page_size,
+        total=total,
     )
 
 
