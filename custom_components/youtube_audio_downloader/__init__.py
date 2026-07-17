@@ -50,6 +50,8 @@ class YoutubeAudioDownloaderRuntimeData:
 
 type YoutubeAudioDownloaderConfigEntry = ConfigEntry[YoutubeAudioDownloaderRuntimeData]
 
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
 _DOWNLOAD_SCHEMA = vol.Schema({vol.Required(ATTR_URL): cv.string})
 _DOWNLOAD_BATCH_SCHEMA = vol.Schema(
     {
