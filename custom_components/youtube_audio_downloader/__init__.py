@@ -17,6 +17,7 @@ from homeassistant.exceptions import (
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from .api import (
     InfoData,
@@ -123,6 +124,10 @@ async def async_setup_entry(
 
     coordinator = YoutubeAudioDownloaderCoordinator(hass, entry, client, info)
     await coordinator.async_config_entry_first_refresh()
+    try:
+        await coordinator.async_initialize_completion_tracking()
+    except UpdateFailed as err:
+        raise ConfigEntryNotReady("Unable to initialize App history") from err
     entry.runtime_data = YoutubeAudioDownloaderRuntimeData(client, coordinator, info)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     await coordinator.async_start()

@@ -26,6 +26,17 @@ async def test_rest_actions_and_error_envelope(aiohttp_client, socket_enabled) -
             {"state": "idle", "progress": 0, "queue_length": 2, "current": None}
         )
 
+    async def history(request):
+        assert request.query == {"page": "1", "page_size": "100"}
+        return web.json_response(
+            {
+                "items": [{"id": "completed-id", "state": "completed"}],
+                "page": 1,
+                "page_size": 100,
+                "total": 1,
+            }
+        )
+
     async def download(request):
         payload = await request.json()
         requests.append(payload)
@@ -44,6 +55,7 @@ async def test_rest_actions_and_error_envelope(aiohttp_client, socket_enabled) -
     app = web.Application()
     app.router.add_get("/api/v1/info", info)
     app.router.add_get("/api/v1/status", status)
+    app.router.add_get("/api/v1/history", history)
     app.router.add_post("/api/v1/downloads", download)
     app.router.add_post("/api/v1/downloads/batch", batch)
     server_client = await aiohttp_client(app)
@@ -53,6 +65,7 @@ async def test_rest_actions_and_error_envelope(aiohttp_client, socket_enabled) -
 
     assert (await api.async_get_info())["instance_id"] == INSTANCE_ID
     assert (await api.async_get_status())["queue_length"] == 2
+    assert (await api.async_get_history())["items"][0]["id"] == "completed-id"
     await api.async_download("test-value")
     await api.async_download_batch(["first-value", "second-value"])
     assert requests == [

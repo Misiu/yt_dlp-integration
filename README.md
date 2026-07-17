@@ -100,23 +100,109 @@ sequence:
       url: "{{ url }}"
 ```
 
-### Powiadomienie o rozpoczęciu pobierania
+## Zdarzenia zakończenia
 
-Identyfikatory encji mogą różnić się zależnie od języka i istniejących nazw. Wybierz właściwą encję w edytorze lub dopasuj poniższy przykład:
+Integracja przekazuje zdarzenia SSE aplikacji na natywną magistralę zdarzeń Home Assistant:
+
+| Typ zdarzenia | Kiedy jest emitowane |
+|---|---|
+| `youtube_audio_downloader_download_completed` | Po poprawnym opublikowaniu każdego pliku MP3 |
+| `youtube_audio_downloader_queue_completed` | Raz po zakończeniu ostatniego elementu kolejki, także gdy ostatnie zadanie zakończyło się błędem lub anulowaniem |
+
+Oba zdarzenia zawierają `instance_id`, `job_id`, `state`, `title`, `artist`, `relative_output_path`, `file_size` i `completed_at`. Zdarzenie końca kolejki zawiera dodatkowo `queue_length: 0`. Integracja nie publikuje źródłowego adresu filmu, tokenu ani ścieżki bezwzględnej. Przetworzone identyfikatory są deduplikowane, a po ponownym połączeniu SSE integracja uzgadnia historię REST, aby odtworzyć pominięte zakończenie pobierania.
+
+### Companion App → pobieranie → powiadomienie → Music Assistant
+
+Poniższy przykład działa asynchronicznie: udostępnienie filmu dodaje go do kolejki, zdarzenie `download_completed` wyświetla powiadomienie, a `queue_completed` odświeża wyłącznie utwory wskazanego providera filesystem w Music Assistant. Dzięki osobnym triggerom automatyzacja nie musi pozostawać uruchomiona przez cały czas pobierania.
+
+Music Assistant udostępnia synchronizację przez uwierzytelnione polecenie `music/sync`. Najpierw dodaj do `configuration.yaml`:
 
 ```yaml
-alias: YouTube Audio — rozpoczęto pobieranie
+rest_command:
+  music_assistant_sync_youtube_audio:
+    url: "http://MUSIC_ASSISTANT_HOST:8095/api"
+    method: POST
+    headers:
+      authorization: !secret music_assistant_authorization
+    payload: >-
+      {
+        "message_id": "youtube-audio-sync",
+        "command": "music/sync",
+        "args": {
+          "media_types": ["track"],
+          "providers": ["filesystem--1234"]
+        }
+      }
+    content_type: "application/json; charset=utf-8"
+```
+
+Zastąp `MUSIC_ASSISTANT_HOST` adresem serwera Music Assistant, a `filesystem--1234` dokładnym identyfikatorem instancji providera filesystem. Token przechowuj w `secrets.yaml` razem z prefiksem `Bearer`:
+
+```yaml
+music_assistant_authorization: "Bearer TWÓJ_TOKEN_MUSIC_ASSISTANT"
+```
+
+Po zmianie `configuration.yaml` uruchom ponownie Home Assistant. Następnie utwórz automatyzację i podmień `user_id` na identyfikator użytkownika wysyłającego link przez Companion App:
+
+```yaml
+alias: YouTube Audio — pobierz i odśwież Music Assistant
+description: Obsługuje linki YouTube udostępnione do Home Assistant Companion
 triggers:
-  - trigger: state
-    entity_id: sensor.youtube_audio_downloader_current_state
-    to: downloading
+  - trigger: event
+    event_type: mobile_app.share
+    context:
+      user_id:
+        - 00000000000000000000000000000000
+    id: shared_url
+
+  - trigger: event
+    event_type: youtube_audio_downloader_download_completed
+    id: download_completed
+
+  - trigger: event
+    event_type: youtube_audio_downloader_queue_completed
+    id: queue_completed
+
 actions:
-  - action: persistent_notification.create
-    data:
-      title: Pobieranie audio
-      message: >-
-        {{ state_attr('sensor.youtube_audio_downloader_current_state', 'artist') }} —
-        {{ state_attr('sensor.youtube_audio_downloader_current_state', 'title') }}
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: shared_url
+          - condition: template
+            value_template: >-
+              {% set url = trigger.event.data.url | default('', true) | trim %}
+              {{ url | regex_search(
+                '^https?://([^/]+\.)?(youtube\.com|youtu\.be)(/|$)',
+                ignorecase=true
+              ) }}
+        sequence:
+          - action: youtube_audio_downloader.download
+            data:
+              url: "{{ trigger.event.data.url | trim }}"
+
+      - conditions:
+          - condition: trigger
+            id: download_completed
+        sequence:
+          - action: persistent_notification.create
+            data:
+              notification_id: >-
+                youtube_audio_{{ trigger.event.data.job_id }}
+              title: Pobieranie audio zakończone
+              message: >-
+                {% set artist = trigger.event.data.artist | default('', true) %}
+                {% set title = trigger.event.data.title | default('Nieznany tytuł', true) %}
+                {{ (artist ~ ' — ') if artist else '' }}{{ title }}
+
+      - conditions:
+          - condition: trigger
+            id: queue_completed
+        sequence:
+          - action: rest_command.music_assistant_sync_youtube_audio
+
+mode: queued
+max: 20
+max_exceeded: silent
 ```
 
 ## Rozwiązywanie problemów
